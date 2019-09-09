@@ -1,0 +1,35 @@
+<!--index.wxml-->
+<view class="container">
+  <view class='top'>
+    <image mode='widthFix' style="width: 192px; top: 50px; position: absolute;" src="../../img/slogn_text.png"></image>
+    <image mode='widthFix' style="width: 140px; top: 120px; position: absolute;" src="../../img/onepass_logo.png"></image>
+    <image mode='widthFix' style="width: 375px;" src="../../img/background_pic.png"></image>
+  </view>
+  <view class='center'>
+    <view class='phone-box' style="border-bottom-color: {{phoneborderbottomcolor}}">
+      <image mode='widthFix' style="width: 18px;" src="../../img/phone_icon.png"></image>
+      <input maxlength='13' id="phonenumber" type='number' 
+      bindinput="phoneinput" bindfocus='bindfocus' bindblur='bindblur' 
+      placeholder='请输入手机号码' placeholder-class='inputplaceholder' ></input>
+      <view wx:if='{{showSendMsg === true}}' class='phone-right'>
+        <view wx:if='{{seconds=== 0}}' bindtap='sendMsg' class='btnmsg'>再次发送</view>
+        <view wx:if='{{seconds!== 0}}' class='timer'>{{seconds}}s</view>
+      </view>
+    </view>
+    <view wx:if='{{showSendMsg === true}}' class='message-box' style="border-bottom-color: {{msgcodeborderbottomcolor}}">
+      <image mode='widthFix' style="width: 18px;" src="../../img/message_icon.png"></image>
+      <input maxlength='6' id="messagecode" type='number' 
+      bindinput='msgcodeinput' bindfocus='bindfocus' bindblur='bindblur' 
+      placeholder='请输入短信验证码' placeholder-class='inputplaceholder' ></input>
+    </view>
+    <view style='background-color: {{ btndisabled ? "#ced2d7" : "#3973ff" }}' class='btn' bindtap='btnClick'>
+      <text wx:if='{{ isbtnloading === false }}' >登录/注册</text>  
+      <image wx:if='{{ isbtnloading === true }}' mode='widthFix' style="width: 24px;" src="../../img/loading.gif"></image>
+    </view>
+  </view>
+  <view class='footer'>
+    <image mode='widthFix' style="width: 323px;" src="../../img/footer_logo.png"></image>
+  </view>
+  <image style='width: 0; height:0' bindload='imgload' binderror='imgload' src="{{operator_url}}"></image>
+  <view wx:if="{{showToast === true}}" class="toast"><view class="txt">{{toast_txt}}</view></view>
+</view>

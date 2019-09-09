@@ -1,0 +1,86 @@
+/**index.wxss**/
+
+.top {
+  position: relative;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-top: -40px;
+}
+.center {  
+  width: 100%;
+}
+.center .phone-box, 
+.center .message-box {  
+  margin-bottom: 20px;
+  margin-left: 26px;
+  margin-right: 26px;
+  display: flex;  
+  align-items: center;
+  border-bottom: 1px solid #ced2d7;  
+  padding-left: 10px;
+  padding-bottom: 10px;
+  position: relative;
+}
+.center .phone-box input,
+.center .message-box input {
+  margin: 0 17px;
+  width: 100%;
+  font-size: 12pt;
+  font-weight: 600;
+  caret-color: #3973ff;  
+}
+.center .phone-box .inputplaceholder,
+.center .message-box .inputplaceholder {
+  font-size: 10pt;
+  font-weight: 500;
+}
+.center .phone-box .phone-right {
+  position: absolute;
+  right: 0;
+  z-index: 99;
+}
+.center .phone-box .phone-right .timer {
+  color: #858AB4
+}
+.center .phone-box .btnmsg {
+  font-size: 10pt;
+  width: 70px;
+  padding: 2px;
+  text-align: center;
+  border-radius: 4px;
+  background-color: #3973ff;
+  color: #fff;
+}
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 26px;
+  margin-right: 26px;  
+  background-color: #3973ff;
+  color: #fff;  
+  height: 45px;
+  border-radius: 4px;
+}
+.footer {
+  position: absolute;
+  bottom: 20px;
+}
+.toast {
+  background-color: #000000;
+  color: #ffffff;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 15px 20px;
+  border-radius: 8px;
+  opacity: 0.7;
+  font-size: 13px;
+}
+.toast .txt {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}

@@ -1,0 +1,20 @@
+<view class='success'>
+  <view class='success-tip'>
+    <image style='width: 160px; height: 90px;' src="../../img/success_animation.gif"></image>
+    <text class='txt'>登录/注册成功</text>
+    <div wx:if="{{onepassSuccess === true}}">OnePass 为你跳过短信验证</div>
+  </view>
+  <button bindtap='tryagain' class='btn'>再次体验</button>
+  <view style='margin-top:20px;'></view>
+  <image mode='widthFix' style="width: 100%" src='../../img/down_pic.png'></image>
+  <view style='margin-top:20px;'></view>
+  <image mode='widthFix' style="width: 100%"  src='../../img/product_info.png'></image>
+  <view style='margin-top:20px;'></view>
+  <image mode='widthFix' style="width: 100%"  style='width:135px;' src='../../img/knowabout_pic.png'></image>
+  <view style='margin-top:20px;'></view>
+  <button bindtap='gotoGeetest' class='btn'>极验官网 
+    <image mode='widthFix' style="width: 10px"  src='../../img/link_icon.png'></image></button>
+  <view style='margin-top:120px;'></view>
+  <image mode='widthFix' style="width: 100%"  src="../../img/footer_logo.png"></image>
+  <view style='margin-top:20px;'></view>
+</view>
