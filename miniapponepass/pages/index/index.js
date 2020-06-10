@@ -1,7 +1,7 @@
 //index.js
 //获取应用实例
 const app = getApp()
-const Onepass = require('../../utils/onepass.js')
+const Onepass = require('../../utils/onepasswx.js')
 
 Page({
   data: {
@@ -14,11 +14,12 @@ Page({
     phone: '',
     messagecode:'',
     operator_url: '',
-    app_id: 'be89172de7bedcb21ce24e857444df2c',
+    app_id: '1312d02ed91865c8817959a39ecf2f75',
     checkGatewayUrl: 'https://onepass.geetest.com/web/result', 
     randomcode: '',
     showToast: false,
-    toast_txt: ''
+    toast_txt: '',
+    width: 300,
   },
   //事件处理函数
   bindViewTap: function() {
@@ -31,18 +32,10 @@ Page({
     if (!target.value) { return; }
     // 去掉空格
     let val = target.value.replace(/[^\d]/g, '');
-    // 加第一个空格
-    if (val.length > 3) {
-      val = `${val.substring(0, 3)} ${val.substring(3)}`;
-    }
-    // 加第二个空格
-    if (val.length > 8) {
-      val = `${val.substring(0, 8)} ${val.substring(8)}`;
-    }
-    if (val.length > 13) {
-      val = val.substring(0, 13);
+        if (val.length > 11) {
+      val = val.substring(0, 11);
     }    
-    this.setData({ btndisabled: val.length !== 13, phone: val.replace(/[^\d]/g, '') })
+    this.setData({ btndisabled: val.length !== 11, phone: val.replace(/[^\d]/g, '') })
     return val;
   },
   msgcodeinput: function(e){
@@ -86,22 +79,25 @@ Page({
     }
     this.setData({ isbtnloading: true })    
     var that = this;
-    this.opInstance.gateway(this.data.phone, function(err, url){
+    this.opInstance.gateway(this.data.phone, function(err, data){
       if(!err){
-        that.setData({ operator_url: url })
+        that.setData({operator_url: data})
+       
       } else {
+        // 调用失败降级走短信
         that.setData({ isbtnloading: false })        
         that.setData({ showSendMsg : true })
         that.sendMsg();
       }
     })
+    
   },
   imgload: function(e){    
     var that = this;
     // get token
     this.opInstance.getTokenStatus(function(err, data){
       if(!err){
-        // check gateway
+        //网关调用成功，调用服务端接口去获取校验结果 check gateway
         wx.request({
           url: that.data.checkGatewayUrl,
           method: 'POST',
@@ -109,7 +105,8 @@ Page({
           data: {
             phone: that.data.phone,
             process_id: data.process_id,
-            app_id: that.data.app_id
+            app_id: that.data.app_id,
+            accesscode: data.accesscode
           },
           success: function (res) {
             var data = res.data;
@@ -131,11 +128,13 @@ Page({
           }
         })
       } else {
-        that.setData({ isbtnloading: false })
-        that.setData({ showSendMsg: true })
+        // 调用失败降级走短信
+        that.setData({ isbtnloading: false })        
+        that.setData({ showSendMsg : true })
         that.sendMsg();
       }
     })
+
   },
   sendMsg: function(){
     if (!/^1\d{10}$/.test(this.data.phone)) {
@@ -177,9 +176,20 @@ Page({
     }, 2000);
   },  
   onLoad: function () {
-
+    try {
+      let that = this;
+      wx.getSystemInfo({
+        success(res){
+          that.width = res.screenWidth;
+        }
+       } 
+       );
+    } catch (error) {
+      
+    }
     this.opInstance = new Onepass({
       app_id: this.data.app_id,
+      timeout: 2000
     })
   },
 })

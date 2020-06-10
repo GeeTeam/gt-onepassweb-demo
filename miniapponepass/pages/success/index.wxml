@@ -15,6 +15,6 @@
   <button bindtap='gotoGeetest' class='btn'>极验官网 
     <image mode='widthFix' style="width: 10px"  src='../../img/link_icon.png'></image></button>
   <view style='margin-top:120px;'></view>
-  <image mode='widthFix' style="width: 100%"  src="../../img/footer_logo.png"></image>
+  <image mode='widthFix' style="width: 100%"  src="../../img/footer.png"></image>
   <view style='margin-top:20px;'></view>
 </view>

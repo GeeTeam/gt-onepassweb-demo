@@ -6,13 +6,14 @@
     "pages/geetest/index"
   ],
   "window": {
-    "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "极验 Onepass",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#232556",
+    "backgroundTextStyle": "light"
   },
   "sitemapLocation": "sitemap.json",
   "networkTimeout": {
-    "request": 7000
+    "request": 5000
   }
 }
