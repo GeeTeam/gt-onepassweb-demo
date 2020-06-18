@@ -32,7 +32,8 @@ Page({
     if (!target.value) { return; }
     // 去掉空格
     let val = target.value.replace(/[^\d]/g, '');
-        if (val.length > 11) {
+    
+    if (val.length > 11) {
       val = val.substring(0, 11);
     }    
     this.setData({ btndisabled: val.length !== 11, phone: val.replace(/[^\d]/g, '') })
@@ -77,12 +78,11 @@ Page({
         return;
       }
     }
-    this.setData({ isbtnloading: true })    
+    this.setData({ isbtnloading: true , operator_url: ''})    
     var that = this;
     this.opInstance.gateway(this.data.phone, function(err, data){
       if(!err){
         that.setData({operator_url: data})
-       
       } else {
         // 调用失败降级走短信
         that.setData({ isbtnloading: false })        
@@ -90,8 +90,8 @@ Page({
         that.sendMsg();
       }
     })
-    
   },
+
   imgload: function(e){    
     var that = this;
     // get token
@@ -111,10 +111,12 @@ Page({
           success: function (res) {
             var data = res.data;
             if (data && data.status === 200 && data.data.result === '0') {
-              // success
+              // success 跳转到成功页面
               wx.redirectTo({
                 url: '/pages/success/index?op=true',
               })
+              // that.showToastTip('本机校验成功');
+              that.setData({ isbtnloading: false })
             } else {
               that.setData({ isbtnloading: false })
               that.setData({ showSendMsg: true })
@@ -189,7 +191,8 @@ Page({
     }
     this.opInstance = new Onepass({
       app_id: this.data.app_id,
-      timeout: 2000
+      // timeout: 3000,// 超时时间
+      // pre_init: true // 默认为true 提前获取运营商参数
     })
   },
 })

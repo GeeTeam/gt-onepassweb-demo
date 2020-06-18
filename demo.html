@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 移动运营商需要判断referrer 请在验证后台添加根据需求添加对应的Referer&&Origin -->
+    <meta content="always" name="referrer"> 
+    <title>onepass demo演示</title>
+    <style>
+        body {
+        margin: 50px 0;
+        font-family: "PingFangSC-Regular", "Open Sans", Arial, "Hiragino Sans GB", "Microsoft YaHei", "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif; 
+        text-align: center;
+        }
+        .inp {
+        width: 278px;
+        height: 40px;
+        padding: 0 10px;
+        font-size: 14px; 
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        }
+        .btn {
+        display: inline-block;
+        box-sizing: border-box;
+        width: 120px;
+        height: 40px;
+        color: #666;
+        font-size: 16px;
+        line-height: 40px;
+        background: white linear-gradient(180deg, #fff 0%, #f3f3f3 100%); 
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        cursor: pointer;
+        }
+        .btn:hover {
+        background: white linear-gradient(0deg, #fff 0%, #f3f3f3 100%);
+        }
+        #captcha {
+        display: inline-block; 
+        width: 300px;
+        }
+        label {
+        display: inline-block;
+        width: 80px;
+        text-align: right; 
+        vertical-align: top;
+        }
+        #wait {
+        margin: 0; 
+        color: #666;
+        text-align: left;
+        }
+        .txt_msg {
+        width: 130px;
+        }
+        .btn_msg {
+        width: 122px;
+        height: 44px;
+        margin: 0;
+        color: #fff;
+        font-size: 14px;
+        background: #0bd8d0;
+        border: solid 1px #ccc;
+        border-radius: 2px;
+
+        -webkit-appearance: none;
+        }
+        .btn_msg.disable {
+        background: #ccc;
+        }
+        #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        opacity: .6;
+        }
+        #loading img {
+        position: relative;
+        width: 30px;
+        margin: 50%;
+        }
+        #btnStep1,
+        #btnStep2 {
+        color: #fff; 
+        background: #0bd8d0;
+        }
+</style>
+</head>
+<body>
+<h1>注册</h1>
+<div>
+    <div id="step1">
+        <h5 style="color:red;">请先关闭WIFI</h5>
+        <h5>demo 仅展示onepass H5 推荐逻辑</h5>
+        <input id="phone" type="tel" class="inp" maxlength="11" placeholder="请输入手机号">
+    </div>
+    <br/>
+    <div id="step2" style="display: none;">
+        <input id="txtmsg" type="tel" class="inp txt_msg" maxlength="6" placeholder="请输入短信验证码">
+        <input type="button" class="btn_msg" id="btnGetMessage" value="获取验证码"> 
+        <br/>
+    </div>
+    <div id="btnStep1" class="btn">下一步</div>
+</div>
+
+<div id="step3" style="display: none;">
+    <h3>注册成功</h3>
+</div>
+<div id="loading" style="display: none;">
+    <img src="img/loading.gif" />
+</div>
+
+<!-- 注意，onepass H5本身是不需要 jquery 库，此处使用 jquery 仅为了在 demo 中使用，减少代码量 -->
+<script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.js"></script>
+<!-- 引入onepass H5js 文件 -->
+<script src="/onepassh5js"></script>
+<script type="text/javascript">
+
+    var step1Div = $('#step1');
+    var step2Div = $('#step2');
+    var step3Div = $('#step3');
+    var btnStep1 = $('#btnStep1');
+
+    // 手机号码校验 ，用户可根据业务做不同判断
+    function checkPhoneNumber(){
+        var phoneEl = $('#phone');
+        var phonenumber = phoneEl.val();
+        if (!phonenumber) {
+            alert('请输入手机号！');
+            return false;
+        }
+        // 根据业务调整正则
+        var phonereg = /^1\d{10}$/;
+        var result = phonereg.test(phonenumber);
+        if (!result) {
+            alert('请输入正确的手机号');
+        }
+        return result;
+    }
+
+    // 发送短信
+    function sendMessage(){
+        // 依据业务需要增加防抖
+        var t = 60;
+        var btntxt = '获取验证码';
+        var btnMsg = $('#btnGetMessage')
+        btnMsg.addClass('disable');
+        var interval = setInterval(function(){
+            btnMsg.val(btntxt + "("+(--t)+")")
+            if(t==0){
+                btnMsg.val(btntxt);
+                btnMsg.removeClass('disable');
+                clearInterval(interval);
+            }
+        }, 1000)
+        // 请求短信接口  以下为伪代码 
+        $.ajax({
+            method: 'POST',
+            url: 'API 接口', // 调用发送短信接口
+            data: {},  
+            success:function(data){
+                // 短信发送成功
+                reSendMessage = true;
+            }  
+        })
+    }
+
+
+    function initOnepass(){
+        // 初始化onepass 参数
+        var opInstance = new GOP({            
+            app_id: '您申请的ID', // app id 
+            timeout: 3000, // 超时
+            pre_init: true // 是否初始化时获取运营商参数
+        });
+        // step4: 获取取号标识 
+        // 网关调用成功后触发
+        opInstance.onGatewaySuccess(function(data){
+            // 网关验证成功， 获取运营商取号标示
+            console.log('onGatewaySuccess')
+            $("#loading").hide();
+            // 调用check接口  以下为伪代码
+            /**
+             * 调用后端校验接口，获取是否是本机校验结果
+             * request 参数: {
+             *      app_id: // app id
+             *      phone: // 需校验手机号
+             *      process_id: SDK返回的流水号
+             *      accesscode: 运营商返回取号的标识
+             *  }
+             * **/
+            // step5: 最后校验是否为本机
+            $.ajax({
+                method: 'POST',
+                url: '后端校验接口', // 您的服务端校验接口
+                data: {}, // 参数
+                success:function(data){
+                    // 校验是否是本机结果
+                    if(data && data.status === 200 && data.data.result === '0'){
+                        step1Div.hide();
+                        step2Div.hide();
+                        btnStep1.hide();
+                        step3Div.show();
+                    }else {
+                        // 校验结果为非本机，走短信
+                        step2Div.show();
+                        sendMessage();
+                    }
+                }  
+            })
+
+        })
+        // 网关调用失败后触发
+        .onGatewayFail(function(data){
+            // 网关失败，调用短信
+            step2Div.show();
+            // 发送短信，调用短信接口 以下为伪代码
+            sendMessage();
+        })
+        return opInstance
+    }
+    
+    // step1: 提前进行初始化，用户可根据业务需求在恰当的时机进行初始化 
+    var opInstance = initOnepass();
+
+    // 是否走短信
+    var reSendMessage = false;
+
+    //step2: 点击登录进行校验流程 
+    $('#btnStep1').click(function (e) {
+        // 以下为推荐逻辑 ，用户可根据业务进行更改
+        if(!reSendMessage){
+            // 手机号码检测 && 当前net状态 
+            var checkphone = checkPhoneNumber();
+            var net = opInstance.checkNetInfo();
+            if (checkphone && net!== 'wifi') {
+                // 调用网关接口 // 参数为phone 
+                // step3: 网关接口调用
+                opInstance.gateway({phone: $('#phone').val()});
+            }else {
+                // 当前网络状态为wifi情况下直接调用短信
+                step2Div.show();
+                reSendMessage = true;
+                sendMessage();
+            }
+        } else {
+            // 降级走短信 ，校验短信&手机号是否匹配后成功登录
+            step1Div.hide();
+            step2Div.hide();
+            step3Div.show();
+            btnStep1.hide();
+        }
+        
+    });
+
+    // 给短信按钮增加click事件，用户可自己实现
+    $('#btnGetMessage').click(
+        // 再次发送短信
+        function(){
+            // 
+        }
+    )
+
+</script>
+</body>
+</html>

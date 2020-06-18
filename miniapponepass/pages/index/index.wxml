@@ -30,6 +30,6 @@
   <view class='footer'>
     <text style="color:white; font-size: 12px">请关闭WIFI，打开数据流量进行体验</text>
   </view>
-   <image style='width: 0; height:0' bindload='imgload' binderror='imgload' referrerPolicy="no-referrer" src="{{operator_url}}"></image>
+   <image style='width: 0; height:0' bindload='imgload' binderror='imgload' referrerPolicy="no-referrer" src="{{operator_url}}" wx:if="{{operator_url}}"></image>
   <view wx:if="{{showToast === true}}" class="toast"><view class="txt">{{toast_txt}}</view></view>
 </view>
