@@ -85,7 +85,7 @@ Page({
         that.setData({operator_url: data})
       } else {
         // 调用失败降级走短信
-        that.setData({ isbtnloading: false })        
+        that.setData({ isbtnloading: false }) 
         that.setData({ showSendMsg : true })
         that.sendMsg();
       }
@@ -115,7 +115,6 @@ Page({
               wx.redirectTo({
                 url: '/pages/success/index?op=true',
               })
-              // that.showToastTip('本机校验成功');
               that.setData({ isbtnloading: false })
             } else {
               that.setData({ isbtnloading: false })
@@ -131,7 +130,7 @@ Page({
         })
       } else {
         // 调用失败降级走短信
-        that.setData({ isbtnloading: false })        
+        that.setData({ isbtnloading: false }) 
         that.setData({ showSendMsg : true })
         that.sendMsg();
       }
