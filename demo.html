@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 移动运营商需要判断referrer 请在验证后台添加根据需求添加对应的Referer&&Origin -->
+    <!--step2: 移动运营商需要判断referrer 请在验证后台添加根据需求添加对应的Referer&&Origin -->
     <meta content="always" name="referrer"> 
     <title>onepass demo演示</title>
     <style>
@@ -96,6 +96,7 @@
     <div id="step1">
         <h5 style="color:red;">请先关闭WIFI</h5>
         <h5>demo 仅展示onepass H5 推荐逻辑</h5>
+        <p>推荐根据script里代码的step步骤进行一步一步部署</p>
         <input id="phone" type="tel" class="inp" maxlength="11" placeholder="请输入手机号">
     </div>
     <br/>
@@ -116,8 +117,8 @@
 
 <!-- 注意，onepass H5本身是不需要 jquery 库，此处使用 jquery 仅为了在 demo 中使用，减少代码量 -->
 <script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.js"></script>
-<!-- 引入onepass H5js 文件 -->
-<script src="/onepassh5js"></script>
+<!-- step1:引入onepass H5js 文件 -->
+<script src="/onepassh5.js"></script>
 <script type="text/javascript">
 
     var step1Div = $('#step1');
@@ -168,17 +169,50 @@
             }  
         })
     }
-
+    // 网络判断方法
+    function getNetworkType(){
+        var common_cell = ['cellular', '2g', '3g', '4g', '5g','3G/2G'];
+        var user_agent = navigator.userAgent.toLowerCase();
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection ||{type: 'unknown'};
+        var type;
+        // 判断是否是微信内置浏览器
+        var isWeixin = /micromessenger/.test(user_agent);
+        if(isWeixin) {
+            if(user_agent.indexOf('nettype') !== -1){
+                type = user_agent.match(/nettype\/\w+/) ? user_agent.match(/nettype\/\w+/)[0] : 'nettype/unknow';
+                type = type.replace('nettype/', '')
+            }else {
+                var weixinType = {"network_type:wifi":"wifi","network_type:edge":"3G/2G","network_type:fail":"fail","network_type:wwan":"3G/2G"}
+                document.addEventListener("WeixinJSBridgeReady",function onBridgeReady(){
+                    WeixinJSBridge.invoke('getNetworkType',{},function(e){
+                        type = weixinType[e.err_msg];
+                    });
+                }); 
+            }
+        }else {
+        type = (connection && connection.type) || 'unknown';
+        }
+        // 对type 做统一处理
+        if(type && common_cell.indexOf(type) !== -1){
+            return 'cellular'
+        }else if ( type === 'wifi'){
+            return 'wifi'
+        }
+        return 'unknown'
+    }
 
     function initOnepass(){
-        // 初始化onepass 参数
+         
+        //  判断当前网络状态的方法,用户可根据业务需求进行更改,为可选步骤
+        var nettype = getNetworkType();
+        var ispre = nettype === 'wifi'? false: true;
+        // step3: 初始化onepass 参数
         var opInstance = new GOP({            
             app_id: '您申请的ID', // app id 
             timeout: 3000, // 超时
-            pre_init: true // 是否初始化时获取运营商参数
+            pre_init: ispre // 是否初始化时获取运营商参数
         });
-        // step4: 获取取号标识 
-        // 网关调用成功后触发
+        // step6: 网关调用成功后触发
         opInstance.onGatewaySuccess(function(data){
             // 网关验证成功， 获取运营商取号标示
             console.log('onGatewaySuccess')
@@ -189,11 +223,11 @@
              * request 参数: {
              *      app_id: // app id
              *      phone: // 需校验手机号
-             *      process_id: SDK返回的流水号
-             *      accesscode: 运营商返回取号的标识
+             *      process_id: SDK返回的流水号 data.process_id
+             *      accesscode: 运营商返回取号的标识 data.accesscode
              *  }
              * **/
-            // step5: 最后校验是否为本机
+            // step7: 最后校验是否为本机
             $.ajax({
                 method: 'POST',
                 url: '后端校验接口', // 您的服务端校验接口
@@ -214,7 +248,7 @@
             })
 
         })
-        // 网关调用失败后触发
+        // step6: 网关调用失败后触发
         .onGatewayFail(function(data){
             // 网关失败，调用短信
             step2Div.show();
@@ -223,23 +257,25 @@
         })
         return opInstance
     }
+   
     
-    // step1: 提前进行初始化，用户可根据业务需求在恰当的时机进行初始化 
+    // step3:初始化onepass 参数  提前进行初始化，用户可根据业务需求在恰当的时机进行初始化 
     var opInstance = initOnepass();
 
     // 是否走短信
     var reSendMessage = false;
 
-    //step2: 点击登录进行校验流程 
+    // 点击登录进行校验流程 
     $('#btnStep1').click(function (e) {
         // 以下为推荐逻辑 ，用户可根据业务进行更改
         if(!reSendMessage){
             // 手机号码检测 && 当前net状态 
             var checkphone = checkPhoneNumber();
+            // step4: 网络状态判断方法（非必选）
             var net = opInstance.checkNetInfo();
             if (checkphone && net!== 'wifi') {
                 // 调用网关接口 // 参数为phone 
-                // step3: 网关接口调用
+                // step5: 网关接口调用
                 opInstance.gateway({phone: $('#phone').val()});
             }else {
                 // 当前网络状态为wifi情况下直接调用短信
